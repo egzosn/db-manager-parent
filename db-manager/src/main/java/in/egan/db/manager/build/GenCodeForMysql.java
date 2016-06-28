@@ -1,13 +1,12 @@
-package egan.in.db.manager.build;
+package in.egan.db.manager.build;
 
-import egan.in.db.manager.build.bean.Column;
-import egan.in.db.manager.build.component.*;
-import egan.in.db.manager.build.utils.DBConnection;
+import in.egan.db.manager.build.bean.Column;
+import in.egan.db.manager.build.component.*;
+import in.egan.db.manager.build.utils.DBConnection;
+
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author  egan

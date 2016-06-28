@@ -1,4 +1,4 @@
-package egan.in.db.manager.build.utils;
+package in.egan.db.manager.build.utils;
 
 import com.mysql.jdbc.MysqlDefs;
 

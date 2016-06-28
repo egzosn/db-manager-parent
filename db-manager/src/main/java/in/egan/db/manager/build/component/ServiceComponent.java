@@ -1,10 +1,8 @@
-package egan.in.db.manager.build.component;
+package in.egan.db.manager.build.component;
 
-
-
-import egan.in.db.manager.build.utils.BuildPath;
-import egan.in.db.manager.build.utils.CommonUtils;
-import egan.in.db.manager.build.utils.Config;
+import in.egan.db.manager.build.utils.BuildPath;
+import in.egan.db.manager.build.utils.CommonUtils;
+import in.egan.db.manager.build.utils.Config;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,28 +11,26 @@ import java.io.PrintWriter;
 import java.util.*;
 
 /**
- * @author  egan
- * @email egzosn@gmail.com
- * @date 2016-6-28 09:53:09
+ * Created by ZaoSheng on 15-5-26.
  */
-public class ControllerComponent {
+public class ServiceComponent {
 
     private String buildPath = BuildPath.getPath(); //生成路径;
     private String authorName = null;//作者名字
     private String email = null;//作者邮箱
     private String packageAndOutPath = null;//指定实体生成所在包的路径
+    private String businessModulePackage = null;
+
     private Set<String> imports = new HashSet<String>();
     private String tablename = null;
 
-    private String classType = "Controller";
+    private String classType = "Service";
 
-    private String extendsClass = "SupportController";
-
-    private String businessModulePackage = null;
+    private String extendsClass = "SupportService";
 
     private String mainPackage = null;
 
-    private String[] classAnnotation = {"@Controller", "@RequestMapping(\"%s\")"};
+    private String[] classAnnotation = {"@Service", "@Transactional"};
 
     private void init(String tablename) {
 
@@ -43,26 +39,25 @@ public class ControllerComponent {
         mainPackage = Config.getMainPackage();
         authorName = Config.getAuthorName();
         email = Config.getEmail();
+
         businessModulePackage =  Config.getBusinessModulePackage();
-
-        imports.add("org.springframework.web.bind.annotation.*");
-        imports.add("org.springframework.stereotype.Controller");
-//        imports.add("org.springframework.transaction.annotation.Transactional");
+        imports.add("org.springframework.stereotype.Service");
+        imports.add("org.springframework.transaction.annotation.Transactional");
         imports.add("javax.inject.Inject");
-        imports.add("java.util.Map");
         imports.add("net.zz.sql.filter.SqlFilter");
-        imports.add("javax.servlet.http.HttpServletRequest");
-        imports.add(mainPackage + ".infrastructure.web.support.SupportController");
-
+        imports.add("net.zz.dao.params.*");
+        imports.add(mainPackage + ".infrastructure.hibernate.Page");
+        imports.add(mainPackage + ".infrastructure.web.support.service.SupportService");
         if (!"".equals(businessModulePackage)){
-            imports.add(mainPackage + "."+ businessModulePackage + ".dao.*");
-            imports.add(mainPackage + "."+ businessModulePackage + ".dao.entity.*");
-            imports.add(mainPackage + "."+ businessModulePackage +".service.*");
-            packageAndOutPath = mainPackage + "." + businessModulePackage + ".controller" ;
+            imports.add(mainPackage + "."+ businessModulePackage +".dao.entity." +  CommonUtils.UnderlineToCap(tablename));
+            imports.add(mainPackage + "."+ businessModulePackage +".dao.*");
+            packageAndOutPath = mainPackage + "." + businessModulePackage + ".service" ;
         }else {
-            imports.add(mainPackage  +".service.*");
-            packageAndOutPath = mainPackage  + ".controller" ;
+            imports.add(mainPackage  +".entity.*");
+            imports.add(mainPackage  +".dao.*");
+            packageAndOutPath = mainPackage  + ".service" ;
         }
+
 
 
     }
@@ -78,7 +73,7 @@ public class ControllerComponent {
         sb.append("\r\n");
         //注释部分
         sb.append("/**\r\n");
-        sb.append(String.format("* %s 控制器\r\n", tablename));
+        sb.append(String.format("* %s 服务\r\n", tablename));
         sb.append("* \r\n");
         sb.append(String.format("* @author %s\r\n", this.authorName));
         sb.append(String.format("* @email %s\r\n", this.email));
@@ -86,8 +81,8 @@ public class ControllerComponent {
         sb.append("*/ \r\n");
 
         sb.append("\r\n\r\n");
-        for (String _at : classAnnotation) {
-            sb.append(String.format(_at,tablename) + "\r\n");
+        for (String _a : classAnnotation) {
+            sb.append(String.format(_a,tablename) + "\r\n");
         }
         sb.append(String.format("public class %s%s extends %s {\r\n", CommonUtils.UnderlineToCap(tablename), classType, extendsClass));
 
@@ -106,10 +101,8 @@ public class ControllerComponent {
     private void field(StringBuffer sb) {
         String entityName = CommonUtils.UnderlineToCap(tablename);
         sb.append("\t@Inject\r\n");
-        sb.append(String.format("\tprivate %sService service;  \r\n", entityName));
-        sb.append("\t//@Inject\r\n");
-        sb.append(String.format("\t//private %sDao dao; ", entityName));
-        sb.append(String.format("\t//  %sDaoParams  \r\n\r\n", entityName));
+        sb.append(String.format("\tprivate %sDao dao; ", entityName));
+        sb.append(String.format("\t//  %sDaoParams  \r\n", entityName));
 
     }
 
@@ -118,25 +111,21 @@ public class ControllerComponent {
      * @return
      */
     private void method(StringBuffer sb) {
-        sb.append("\t//@RequestMapping(\"test\")\r\n");
-        sb.append("\tpublic Map<String, Object> test(){\r\n");
-        sb.append("\t\tMap<String,Object> data = successData();\r\n");
-        sb.append("\t\treturn data;\r\n");
-        sb.append("\t}\r\n\r\n");
+        sb.append("\r\n");
         sb.append("\t/**\r\n");
-        sb.append("\t*根据请求过滤转化为查询参数\r\n");
-        sb.append("\t*\r\n");
-        sb.append("\t* @param request\r\n");
+        sb.append("\t* @param sqlFilter 过滤对象\r\n");
         sb.append(String.format("\t* @author %s\r\n", this.authorName));
         sb.append(String.format("\t* @email %s\r\n", this.email));
         sb.append(String.format("\t* @date %s\r\n", new Date().toLocaleString()));
         sb.append("\t*/\r\n");
-        sb.append("\t@RequestMapping(\"list\")\r\n");
-        sb.append("\tpublic Map<String, Object> list(HttpServletRequest request){\r\n");
-        sb.append("\t\tSqlFilter sqlFilter = new SqlFilter(request);\r\n");
-        sb.append("\t\treturn assemblyPageData(service.findByFilter(sqlFilter));\r\n");
+        sb.append("\t@Transactional(readOnly = true)\r\n");
+        sb.append(String.format("\tpublic Page<%s> findByFilter(SqlFilter sqlFilter){\r\n",  CommonUtils.UnderlineToCap(tablename)));
+        sb.append("\t\t//设置排序\r\n");
+        sb.append("\t\tsqlFilter.setOrder();\r\n");
+        sb.append(String.format("\t\treturn dao.queryPageUseHQL(sqlFilter.setAlias(\"%s\").getQueryParams(), true);\r\n", CommonUtils.fieldConvert(tablename)));
         sb.append("\t}\r\n\r\n");
     }
+
 
     public void gen(String tablename) {
         init(tablename);

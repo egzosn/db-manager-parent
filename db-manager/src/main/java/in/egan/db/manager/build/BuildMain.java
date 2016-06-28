@@ -1,7 +1,7 @@
-package egan.in.db.manager.build;
+package in.egan.db.manager.build;
 
-import egan.in.db.manager.build.utils.Config;
-import egan.in.db.manager.build.utils.DBConnection;
+import in.egan.db.manager.build.utils.Config;
+import in.egan.db.manager.build.utils.DBConnection;
 
 /**
  * @author  egan

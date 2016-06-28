@@ -1,9 +1,10 @@
-package egan.in.db.manager.build.component;
+package in.egan.db.manager.build.component;
 
-import egan.in.db.manager.build.bean.Column;
-import egan.in.db.manager.build.utils.BuildPath;
-import egan.in.db.manager.build.utils.CommonUtils;
-import egan.in.db.manager.build.utils.Config;
+import in.egan.db.manager.build.bean.Column;
+import in.egan.db.manager.build.utils.BuildPath;
+import in.egan.db.manager.build.utils.CommonUtils;
+import in.egan.db.manager.build.utils.Config;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

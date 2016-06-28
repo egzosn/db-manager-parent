@@ -1,4 +1,4 @@
-package egan.in.db.manager.build.bean;
+package in.egan.db.manager.build.bean;
 
 /**
  * 存储列的信息
