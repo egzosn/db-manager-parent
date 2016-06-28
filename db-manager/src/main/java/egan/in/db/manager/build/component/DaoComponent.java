@@ -42,7 +42,7 @@ public class DaoComponent {
         email = Config.getEmail();
         businessModulePackage =  Config.getBusinessModulePackage();
         imports.add("org.springframework.stereotype.Repository");
-        imports.add(mainPackage + ".infrastructure.hibernate.HibernateSupportDao");
+        imports.add(mainPackage + ".infrastructure.hibernate." + extendsClass);
 
         if (!"".equals(businessModulePackage)){
             imports.add(mainPackage + "."+ businessModulePackage +".dao.entity.*");
