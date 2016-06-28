@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <preConditions>
+        <dbms type="mysql"/>
+    </preConditions>
+
+    <!-- -->
+<!--
+    <include file="src/main/resources/table/file_manager/file_manager.xml"/>
+    <include file="src/main/resources/table/user/user.xml"/>
+    <include file="src/main/resources/table/region/region.xml"/>
+-->
+
+
+</databaseChangeLog>
