@@ -21,6 +21,7 @@ public class EntityComponent {
     private String authorName = null;//作者名字
     private String email = null;//作者邮箱
     private String packageAndOutPath = null;//指定实体生成所在包的路径
+    private String businessModulePackage = null;
     private List<Column> columnJavaclass = new ArrayList<Column>(); //
     private Set<String> imports = new HashSet<String>();
     private String tablename = null;
@@ -36,20 +37,26 @@ public class EntityComponent {
 
         this.tablename = tablename;
         this.mainPackage = Config.getMainPackage();
+        businessModulePackage =  Config.getBusinessModulePackage();
         this.authorName = Config.getAuthorName();
         this.email = Config.getEmail();
 
         imports.add("com.fasterxml.jackson.annotation.JsonIgnore");
         imports.add("javax.persistence.*");
         imports.add("org.hibernate.annotations.GenericGenerator");
-        imports.add(mainPackage + ".infrastructure.dao.entity.value.*");
-        packageAndOutPath = mainPackage + ".infrastructure.dao.entity";
         this.columnJavaclass = columnJavaclass;
+        if (!"".equals(businessModulePackage)){
+            packageAndOutPath =   mainPackage + "." + businessModulePackage  + ".dao.entity";
+        }else {
+            packageAndOutPath = mainPackage  + ".dao.entity" ;
+        }
+
     }
 
     private String parse() {
 
         StringBuffer sb = new StringBuffer();
+        sb.append(String.format("package %s;\r\n", packageAndOutPath));
         for (Column column : columnJavaclass) {
             imports.add(column.getType());
         }
@@ -69,7 +76,7 @@ public class EntityComponent {
         //实体部分
         sb.append(String.format("@Table(name = \"%s\") \r\n", tablename));
         sb.append("@Entity \r\n");
-        sb.append(String.format("public class %s {\r\n", tablename));
+        sb.append(String.format("public class %s {\r\n", CommonUtils.UnderlineToCap(tablename)));
         processAllAttrs(sb);//属性
         processAllMethod(sb); // 方法
         sb.append("}\r\n");
@@ -87,7 +94,10 @@ public class EntityComponent {
         String  attrsDefaultValue = "";
         sb.append("\r\n");
         for (Column column : columnJavaclass) {
-            sb.append(String.format("\t //%s\r\n", column.getComment()));
+            if (null == column.getComment() || "".equals(column.getComment())){ }
+            else {
+                sb.append(String.format("\t //%s\r\n", column.getComment()));
+            }
             javaClassShortName =  column.getType().substring(column.getType().lastIndexOf(".") + 1);
             if (column.isPrimary()) {
                 sb.append("\t@Id\r\n");
@@ -95,7 +105,7 @@ public class EntityComponent {
                     sb.append("\t@GenericGenerator(name=\"generator\", strategy=\"uuid.hex\")\r\n");
                     sb.append("\t@GeneratedValue(generator=\"generator\")\r\n");
                 }else if (column.isAutoincrement()){
-                    sb.append("\t@GeneratedValue");
+                    sb.append("\t@GeneratedValue\r\n");
                 }
             }
             if (column.equals("version")) {

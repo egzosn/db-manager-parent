@@ -22,10 +22,10 @@ public class DaoComponent {
     private String packageAndOutPath = null;//指定实体生成所在包的路径
     private Set<String> imports = new HashSet<String>();
     private String tablename = null;
-
+    private String businessModulePackage = null;
     private String classType = "Dao";
 
-    private String extendsClass = "HibernateSupportDao";
+    private String extendsClass = "BaseDao";
 
     private String mainPackage = null;
 
@@ -40,10 +40,17 @@ public class DaoComponent {
         mainPackage = Config.getMainPackage();
         authorName = Config.getAuthorName();
         email = Config.getEmail();
-
+        businessModulePackage =  Config.getBusinessModulePackage();
         imports.add("org.springframework.stereotype.Repository");
-        imports.add(mainPackage + ".infrastructure.dao.hibernate.HibernateSupportDao");
-        imports.add(mainPackage + ".infrastructure.dao.entity.*");
+        imports.add(mainPackage + ".infrastructure.hibernate.HibernateSupportDao");
+
+        if (!"".equals(businessModulePackage)){
+            imports.add(mainPackage + "."+ businessModulePackage +".dao.entity.*");
+            packageAndOutPath = mainPackage + "." + businessModulePackage + ".dao" ;
+        }else {
+            imports.add(mainPackage  +".dao.entity.*");
+            packageAndOutPath = mainPackage  + ".dao" ;
+        }
 
         for (Column column : columnJavaclass) {
             if (column.isPrimary()) {
@@ -53,12 +60,13 @@ public class DaoComponent {
             }
         }
 
-        packageAndOutPath = mainPackage + ".infrastructure.dao";
+
     }
 
     private String parse() {
 
         StringBuffer sb = new StringBuffer();
+        sb.append(String.format("package %s;\r\n", packageAndOutPath));
         for (String _import : imports) {
             sb.append("import " + _import + ";\r\n");
         }

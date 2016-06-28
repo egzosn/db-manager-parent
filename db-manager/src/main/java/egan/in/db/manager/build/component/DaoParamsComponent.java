@@ -24,6 +24,7 @@ public class DaoParamsComponent {
     private List<Column> columnJavaclass = new ArrayList<Column>(); //
     private Set<String> imports = new HashSet<String>();
     private String tablename = null;
+    private String businessModulePackage = null;
 
     private String classType = "DaoParams";
 
@@ -39,14 +40,19 @@ public class DaoParamsComponent {
 
         this.tablename = tablename;
         mainPackage = Config.getMainPackage();
+        businessModulePackage =  Config.getBusinessModulePackage();
         this.authorName = Config.getAuthorName();
         email = Config.getEmail();
         imports.add("net.zz.dao.params.*");
         imports.add("net.zz.dao.params.enums.*");
         imports.add("java.util.List");
         imports.add("java.util.Arrays");
-        packageAndOutPath = mainPackage + ".infrastructure.dao.params";
 
+        if (!"".equals(businessModulePackage)){
+            packageAndOutPath =   mainPackage + "." + businessModulePackage  + ".dao.params";
+        }else {
+            packageAndOutPath = mainPackage  + ".dao.params" ;
+        }
 
         this.columnJavaclass = columnJavaclass;
     }
@@ -108,7 +114,7 @@ public class DaoParamsComponent {
             sb.append("\t}\r\n");
 
 //            sb.append("\tpublic " + attrTypes[i] + " get" + xhxConvert(colnames[i].toLowerCase()) + "(){\r\n");
-            sb.append(String.format("\tpublic %s get%s(){\r\n",javaClassShortName, attr));
+            sb.append(String.format("\tpublic %s get%s(){\r\n",javaClassShortName, CommonUtils.UnderlineToCap(column.getField().toLowerCase())));
 //            sb.append("\t\treturn " + fieldConvert(colnames[i].toLowerCase()) + ";\r\n");
             sb.append(String.format("\t\treturn (%s) attrs.get(Field.%s.name());\r\n", javaClassShortName, attr));
             sb.append("\t}\r\n");

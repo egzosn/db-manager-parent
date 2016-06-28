@@ -5,7 +5,9 @@ import egan.in.db.manager.build.component.*;
 import egan.in.db.manager.build.utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author  egan
@@ -110,5 +112,7 @@ public class GenCodeForMysql {
         }
         return className;
     }
+
+
 
 }

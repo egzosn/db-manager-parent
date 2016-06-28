@@ -53,17 +53,24 @@ public class ControllerComponent {
         imports.add("net.zz.sql.filter.SqlFilter");
         imports.add("javax.servlet.http.HttpServletRequest");
         imports.add(mainPackage + ".infrastructure.web.support.SupportController");
-        imports.add(mainPackage + ".infrastructure.dao.*");
-        imports.add(mainPackage + ".infrastructure.dao.entity.*");
-        imports.add(mainPackage + "."+ businessModulePackage +".service.*");
 
-        packageAndOutPath = mainPackage + "." + businessModulePackage + ".controller" ;
+        if (!"".equals(businessModulePackage)){
+            imports.add(mainPackage + "."+ businessModulePackage + ".dao.*");
+            imports.add(mainPackage + "."+ businessModulePackage + ".dao.entity.*");
+            imports.add(mainPackage + "."+ businessModulePackage +".service.*");
+            packageAndOutPath = mainPackage + "." + businessModulePackage + ".controller" ;
+        }else {
+            imports.add(mainPackage  +".service.*");
+            packageAndOutPath = mainPackage  + ".controller" ;
+        }
+
 
     }
 
     private String parse() {
 
         StringBuffer sb = new StringBuffer();
+        sb.append(String.format("package %s;\r\n", packageAndOutPath));
         for (String _import : imports) {
             sb.append("import " + _import + ";\r\n");
         }
@@ -102,7 +109,7 @@ public class ControllerComponent {
         sb.append(String.format("\tprivate %sService service;  \r\n", entityName));
         sb.append("\t//@Inject\r\n");
         sb.append(String.format("\t//private %sDao dao; ", entityName));
-        sb.append(String.format("\t//  %sDaoParams  \r\n", entityName));
+        sb.append(String.format("\t//  %sDaoParams  \r\n\r\n", entityName));
 
     }
 
@@ -112,7 +119,7 @@ public class ControllerComponent {
      */
     private void method(StringBuffer sb) {
         sb.append("\t//@RequestMapping(\"test\")\r\n");
-        sb.append("\tpublic Map<String, Object> test()\r\n");
+        sb.append("\tpublic Map<String, Object> test(){\r\n");
         sb.append("\t\tMap<String,Object> data = successData();\r\n");
         sb.append("\t\treturn data;\r\n");
         sb.append("\t}\r\n\r\n");
@@ -123,9 +130,9 @@ public class ControllerComponent {
         sb.append(String.format("\t* @author %s\r\n", this.authorName));
         sb.append(String.format("\t* @email %s\r\n", this.email));
         sb.append(String.format("\t* @date %s\r\n", new Date().toLocaleString()));
-        sb.append("\t*/");
+        sb.append("\t*/\r\n");
         sb.append("\t@RequestMapping(\"list\")\r\n");
-        sb.append("\tpublic Map<String, Object> list(HttpServletRequest request)\r\n");
+        sb.append("\tpublic Map<String, Object> list(HttpServletRequest request){\r\n");
         sb.append("\t\tSqlFilter sqlFilter = new SqlFilter(request);\r\n");
         sb.append("\t\treturn assemblyPageData(service.findByFilter(sqlFilter));\r\n");
         sb.append("\t}\r\n\r\n");

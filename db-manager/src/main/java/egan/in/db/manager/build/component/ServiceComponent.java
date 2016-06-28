@@ -18,14 +18,14 @@ public class ServiceComponent {
     private String authorName = null;//作者名字
     private String email = null;//作者邮箱
     private String packageAndOutPath = null;//指定实体生成所在包的路径
+    private String businessModulePackage = null;
+
     private Set<String> imports = new HashSet<String>();
     private String tablename = null;
 
     private String classType = "Service";
 
     private String extendsClass = "SupportService";
-
-    private String businessModulePackage = null;
 
     private String mainPackage = null;
 
@@ -45,17 +45,26 @@ public class ServiceComponent {
         imports.add("javax.inject.Inject");
         imports.add("net.zz.sql.filter.SqlFilter");
         imports.add("net.zz.dao.params.*");
+        imports.add(mainPackage + ".infrastructure.hibernate.Page");
         imports.add(mainPackage + ".infrastructure.web.support.service.SupportService");
-        imports.add(mainPackage + ".infrastructure.dao.*");
-        imports.add(mainPackage + ".infrastructure.dao.entity.*");
+        if (!"".equals(businessModulePackage)){
+            imports.add(mainPackage + "."+ businessModulePackage +".dao.entity." +  CommonUtils.UnderlineToCap(tablename));
+            imports.add(mainPackage + "."+ businessModulePackage +".dao.*");
+            packageAndOutPath = mainPackage + "." + businessModulePackage + ".service" ;
+        }else {
+            imports.add(mainPackage  +".entity.*");
+            imports.add(mainPackage  +".dao.*");
+            packageAndOutPath = mainPackage  + ".service" ;
+        }
 
-        packageAndOutPath = mainPackage + "." + businessModulePackage + ".service" ;
+
 
     }
 
     private String parse() {
 
         StringBuffer sb = new StringBuffer();
+        sb.append(String.format("package %s;\r\n", packageAndOutPath));
         for (String _import : imports) {
             sb.append("import " + _import + ";\r\n");
         }
@@ -101,17 +110,18 @@ public class ServiceComponent {
      * @return
      */
     private void method(StringBuffer sb) {
-        sb.append("\t/**");
+        sb.append("\r\n");
+        sb.append("\t/**\r\n");
         sb.append("\t* @param sqlFilter 过滤对象\r\n");
         sb.append(String.format("\t* @author %s\r\n", this.authorName));
         sb.append(String.format("\t* @email %s\r\n", this.email));
         sb.append(String.format("\t* @date %s\r\n", new Date().toLocaleString()));
-        sb.append("\t*/");
+        sb.append("\t*/\r\n");
         sb.append("\t@Transactional(readOnly = true)\r\n");
-        sb.append("\tpublic Map<String, Object> findByFilter(SqlFilter sqlFilter)\r\n");
+        sb.append(String.format("\tpublic Page<%s> findByFilter(SqlFilter sqlFilter){\r\n",  CommonUtils.UnderlineToCap(tablename)));
         sb.append("\t\t//设置排序\r\n");
         sb.append("\t\tsqlFilter.setOrder();\r\n");
-        sb.append(String.format("\t\treturn dao.queryPageUseHQL(sqlFilter.setAlias(\"%s\").getQueryParams());\r\n", CommonUtils.fieldConvert(tablename)));
+        sb.append(String.format("\t\treturn dao.queryPageUseHQL(sqlFilter.setAlias(\"%s\").getQueryParams(), true);\r\n", CommonUtils.fieldConvert(tablename)));
         sb.append("\t}\r\n\r\n");
     }
 
